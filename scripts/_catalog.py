@@ -13,7 +13,10 @@ def load_yaml(path):
     path = Path(path)
     if not path.exists():
         raise CatalogError(f"missing fragment: {path}")
-    return yaml.safe_load(path.read_text()) or {}
+    data = yaml.safe_load(path.read_text()) or {}
+    if not isinstance(data, dict):
+        raise CatalogError(f"fragment is not a mapping: {path}")
+    return data
 
 
 def load_architecture(side, name):

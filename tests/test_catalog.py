@@ -18,3 +18,11 @@ def test_load_yaml_empty_file_is_empty_dict(tmp_path):
     f = tmp_path / "empty.yaml"
     f.write_text("")
     assert _catalog.load_yaml(f) == {}
+
+
+def test_load_yaml_non_mapping_raises(tmp_path):
+    f = tmp_path / "scalar.yaml"
+    f.write_text("just a string")
+    with pytest.raises(_catalog.CatalogError) as exc:
+        _catalog.load_yaml(f)
+    assert "not a mapping" in str(exc.value)

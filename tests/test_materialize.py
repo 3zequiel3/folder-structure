@@ -15,12 +15,15 @@ def test_leaf_dir_gets_gitkeep(tmp_path):
 
 
 def test_empty_dict_is_a_leaf(tmp_path):
-    materialize_mod.materialize({"a": {}}, tmp_path)
+    created = materialize_mod.materialize({"a": {}}, tmp_path)
     assert (tmp_path / "a" / ".gitkeep").is_file()
+    assert len(created) == 1
 
 
 def test_idempotent(tmp_path):
     tree = {"a": None}
-    materialize_mod.materialize(tree, tmp_path)
-    materialize_mod.materialize(tree, tmp_path)  # must not raise
+    first = materialize_mod.materialize(tree, tmp_path)
+    second = materialize_mod.materialize(tree, tmp_path)  # must not raise
     assert (tmp_path / "a" / ".gitkeep").is_file()
+    assert len(first) == 1
+    assert len(second) == 1
