@@ -58,9 +58,8 @@ def compose_side(arch, stack):
 def mount_at(tree, mount, subtree):
     """Place `subtree` at the `mount` path ('' = merge at root) inside `tree`."""
     if not mount:
-        merged = dict(tree)
-        merged.update(subtree)
-        return merged
+        tree.update(subtree)
+        return tree
     parts = mount.split("/")
     node = tree
     for part in parts[:-1]:
