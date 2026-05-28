@@ -53,3 +53,57 @@ def compose_side(arch, stack):
         if scaffold_dir != base:
             tree.setdefault(scaffold_dir, None)
     return tree
+
+
+def mount_at(tree, mount, subtree):
+    """Place `subtree` at the `mount` path ('' = merge at root) inside `tree`."""
+    if not mount:
+        merged = dict(tree)
+        merged.update(subtree)
+        return merged
+    parts = mount.split("/")
+    node = tree
+    for part in parts[:-1]:
+        child = node.get(part)
+        if not isinstance(child, dict):
+            child = {}
+            node[part] = child
+        node = child
+    node[parts[-1]] = subtree
+    return tree
+
+
+def compose(selections):
+    """Build a structure dict {'root': str, 'tree': node} from user selections.
+
+    selections = {
+      'root': str, 'topology': str,
+      'backend': {'arch': str, 'stack': str, 'nesting': str?}?,
+      'frontend': {'arch': str, 'stack': str, 'nesting': str?}?,
+    }
+    """
+    topo_name = selections["topology"]
+    topologies = load_topologies()
+    if topo_name not in topologies:
+        raise CatalogError(f"unknown topology '{topo_name}'")
+    topo = topologies[topo_name] or {}
+
+    sides = [s for s in ("backend", "frontend") if selections.get(s)]
+    max_sides = topo.get("max_sides")
+    if max_sides is not None and len(sides) > max_sides:
+        raise CatalogError(
+            f"topology '{topo_name}' allows at most {max_sides} side(s), got {len(sides)}")
+
+    tree = deepcopy(topo.get("scaffold", {}) or {})
+    mounts = topo.get("mounts", {}) or {}
+
+    for side in sides:
+        sel = selections[side]
+        arch = load_architecture(side, sel["arch"])
+        stack = load_stack(side, sel["stack"])
+        if sel.get("nesting"):
+            stack = {**stack, "nesting": sel["nesting"]}
+        subtree = compose_side(arch, stack)
+        tree = mount_at(tree, mounts.get(side, ""), subtree)
+
+    return {"root": selections["root"], "tree": tree}
