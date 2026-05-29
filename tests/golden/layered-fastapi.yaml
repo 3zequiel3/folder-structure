@@ -1,0 +1,13 @@
+root: my-api
+tree:
+  app:
+    config:
+    modules:
+      "{module}":
+        router:
+        service:
+        uow:
+        repository:
+        model:
+        schemas:
+  tests:

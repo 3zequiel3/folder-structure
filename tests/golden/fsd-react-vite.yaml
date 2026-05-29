@@ -1,0 +1,15 @@
+root: my-web
+tree:
+  src:
+    app:
+      providers:
+    pages:
+    widgets:
+    features:
+    entities:
+    shared:
+      api:
+      config:
+      lib:
+      ui:
+  public:

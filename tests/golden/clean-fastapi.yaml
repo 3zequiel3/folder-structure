@@ -1,0 +1,21 @@
+root: my-api
+tree:
+  app:
+    config:
+    modules:
+      "{module}":
+        domain:
+          entities:
+          value-objects:
+        application:
+          use-cases:
+          ports:
+          dtos:
+        infrastructure:
+          repositories:
+          models:
+          uow:
+          db:
+        presentation:
+          routers:
+  tests:
