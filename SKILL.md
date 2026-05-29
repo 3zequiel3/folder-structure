@@ -1,5 +1,5 @@
 ---
-name: skill-carpetas
+name: folder-structure
 description: >
   Use when starting a new project and the user wants to create the folder
   structure for a backend and/or frontend. Interviews the user about stack and
@@ -9,7 +9,7 @@ description: >
   project structure".
 ---
 
-# skill-carpetas
+# folder-structure
 
 Interview the user, compose a folder tree from the catalog, negotiate it over a
 `structure.yaml`, then materialize it. Output is **directories only** (with
@@ -74,4 +74,4 @@ structure from generic web search.
 - `references/topologies.yaml` — root wrapper + mount points.
 
 Adding a stack or architecture is one new fragment — the script composes any
-combination. See `docs/superpowers/specs/2026-05-28-skill-carpetas-design.md`.
+combination. See `docs/superpowers/specs/2026-05-28-folder-structure-design.md`.

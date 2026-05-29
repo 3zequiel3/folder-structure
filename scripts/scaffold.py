@@ -1,4 +1,4 @@
-"""skill-carpetas CLI: compose a folder tree from the catalog, or materialize one."""
+"""folder-structure CLI: compose a folder tree from the catalog, or materialize one."""
 import argparse
 import sys
 from pathlib import Path
