@@ -6,6 +6,7 @@ from pathlib import Path
 import yaml
 
 from _compose import compose
+from _detect import detect
 from _materialize import materialize
 
 
@@ -55,6 +56,12 @@ def cmd_compose(args):
     return 0
 
 
+def cmd_detect(args):
+    report = detect(Path(args.into))
+    print(yaml.safe_dump(report, sort_keys=False), end="")
+    return 0
+
+
 def cmd_materialize(args):
     try:
         data = yaml.safe_load(Path(args.from_yaml).read_text())
@@ -66,8 +73,9 @@ def cmd_materialize(args):
               file=sys.stderr)
         return 1
     target = Path(args.into) / data["root"]
-    if target.exists() and any(target.iterdir()) and not args.force:
-        print(f"error: target {target} is not empty (use --force)", file=sys.stderr)
+    if target.exists() and any(target.iterdir()) and not args.force and not args.merge:
+        print(f"error: target {target} is not empty (use --force or --merge)",
+              file=sys.stderr)
         return 1
     created = materialize(data["tree"], target)
     print(f"created {len(created)} leaf dirs under {target}")
@@ -95,7 +103,14 @@ def build_parser():
     m.add_argument("--from-yaml", required=True, dest="from_yaml")
     m.add_argument("--into", default=".")
     m.add_argument("--force", action="store_true")
+    m.add_argument("--merge", action="store_true",
+                   help="allow writing into an existing project (additive, never overwrites)")
     m.set_defaults(func=cmd_materialize)
+
+    d = sub.add_parser("detect", help="inspect a directory and report detected stack/topology")
+    d.add_argument("--into", default=".")
+    d.set_defaults(func=cmd_detect)
+
     return p
 
 

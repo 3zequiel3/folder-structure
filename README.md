@@ -90,6 +90,30 @@ my-api/
 └── tests/
 ```
 
+## Brownfield detection
+
+If the target directory already has a project scaffold (e.g. after `npm create vite`,
+`create-next-app`, or an existing FastAPI repo), run detection first:
+
+```bash
+python scripts/scaffold.py detect --into <project-dir>
+```
+
+This infers the framework (`next`, `react-vite`, `fastapi`, `nestjs`, …), the
+package manager (`pnpm`, `uv`, `npm`, …), and the existing `source_root` (`src`,
+`app`, …). The package manager is **informational only** — it does not change the
+folder tree (this skill is dirs-only).
+
+Use the report to pre-fill the interview and skip questions you can already answer.
+Then materialize the architecture on top of the existing project with `--merge`:
+
+```bash
+python scripts/scaffold.py materialize --from-yaml structure.yaml --into <parent-dir> --merge
+```
+
+`--merge` makes materialize additive — it only creates missing directories and never
+overwrites anything already there.
+
 ## Repository layout
 
 ```

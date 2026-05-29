@@ -33,6 +33,27 @@ Interview the user, compose a folder tree from the catalog, negotiate it over a
    `{module}` placeholder? If so, name it (e.g. `users`) → sets `--example-module <name>`.
    Otherwise leave the `{module}` template for the user to rename.
 
+## Brownfield (existing project)
+
+If the target directory already has a scaffold (e.g. `create-vite`, `create-next-app`,
+an existing FastAPI repo), run detection FIRST and pre-fill the interview:
+
+```bash
+python scripts/scaffold.py detect --into <project-dir>
+```
+
+It reports the detected `topology`, `backend`/`frontend` stack, package manager, and
+existing `source_root`. Use those to skip questions you can infer; only ask the gaps
+(usually the architecture). The package manager is reported for information only — it
+does NOT change the folder tree (this skill is dirs-only).
+
+Then compose normally and materialize into the existing project with `--merge`
+(materialize is additive — it only creates missing dirs and never overwrites):
+
+```bash
+python scripts/scaffold.py materialize --from-yaml structure.yaml --into <parent-dir> --merge
+```
+
 ## Compose, show, negotiate
 
 Run from the skill directory:
