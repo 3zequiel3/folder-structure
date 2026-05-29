@@ -1,59 +1,61 @@
 # folder-structure
 
-A Claude Code skill that interviews you about your stack and architecture, then
-scaffolds the **optimal folder tree** for your project. Output is **directories
-only** (with `.gitkeep` so git tracks them) — never code or config file contents.
+Una skill de Claude Code que te entrevista sobre tu stack y tu arquitectura y luego
+genera el **árbol de carpetas óptimo** para tu proyecto. La salida es **solo
+directorios** (con `.gitkeep` para que git los rastree); nunca código ni contenido de
+archivos de configuración.
 
-The "best structure" is not improvised on each run: architecture layouts
+La "mejor estructura" no se improvisa en cada corrida: los layouts de arquitectura
 (clean / hexagonal / layered, feature-based / FSD / atomic / container-presentational)
-are **baked into a catalog**. The composition is deterministic; the model only
-runs the interview and the negotiation.
+están **codificados en un catálogo**. La composición es determinista; el modelo solo
+conduce la entrevista y la negociación.
 
-## How it works
+## Cómo funciona
 
-Composition is **three orthogonal overlays**, applied in order:
+La composición son **tres capas ortogonales**, aplicadas en orden:
 
 ```
-TOPOLOGY            →  ARCHITECTURE         →  STACK
-(root wrapper)         (defines layer slots)   (injects dirs into slots +
-                                                nesting strategy)
+TOPOLOGÍA           →  ARQUITECTURA        →  STACK
+(envoltorio raíz)      (define los slots)     (inyecta dirs en los slots +
+                                               estrategia de nesting)
 ```
 
-- **Topology** — the repo shape: `single-app`, `monorepo-turborepo`, or
+- **Topología** — la forma del repo: `single-app`, `monorepo-turborepo` o
   `cross-lang` (`frontend/` + `backend/`).
-- **Architecture** — defines the named *layer slots* (the authority on structure).
-  Backend: `clean`, `hexagonal`, `layered`. Frontend: `feature-based`, `fsd`,
-  `atomic`, `container-presentational`.
-- **Stack** — declares the `nesting` strategy (`feature-first` / `layer-first` /
-  `flat`) and *injects* framework dirs into the architecture's slots.
+- **Arquitectura** — define los *slots de capa* con nombre (la autoridad sobre la
+  estructura). Backend: `clean`, `hexagonal`, `layered`. Frontend: `feature-based`,
+  `fsd`, `atomic`, `container-presentational`.
+- **Stack** — declara la estrategia de `nesting` (`feature-first` / `layer-first` /
+  `flat`) e *inyecta* los directorios del framework en los slots de la arquitectura.
   Backend: `fastapi`, `nestjs`, `express`. Frontend: `next`, `react-vite`.
 
-The slot contract is ports-and-adapters applied to the tool itself: architecture
-fragments **define** slot names, stack fragments **reference** them to inject dirs.
+El contrato de slots es puertos-y-adaptadores aplicado a la propia herramienta: los
+fragmentos de arquitectura **definen** los nombres de slot, y los fragmentos de stack
+los **referencian** para inyectar directorios.
 
-Two phases: **compose** (produce a `structure.yaml` and print the tree, no disk
-writes) and **materialize** (create the directories from the agreed YAML). The
-negotiation always happens over the editable `structure.yaml`.
+Dos fases: **compose** (produce un `structure.yaml` e imprime el árbol, sin escribir en
+disco) y **materialize** (crea los directorios a partir del YAML acordado). La
+negociación siempre ocurre sobre el `structure.yaml` editable.
 
-> `clean` ≠ `layered`. `clean` separates `domain / application / infrastructure /
-> presentation` (the domain entity is distinct from the ORM model, enforced by the
-> folder boundary). `layered` is the flat package-by-feature module
+> `clean` ≠ `layered`. `clean` separa `domain / application / infrastructure /
+> presentation` (la entidad de dominio es distinta del modelo ORM, forzado por el
+> límite de carpeta). `layered` es el módulo plano por feature
 > (`router / service / uow / repository / model / schemas`). Screaming Architecture
-> is not a separate option — it is `nesting: feature-first`.
+> no es una opción aparte: es `nesting: feature-first`.
 
-## Usage
+## Uso
 
-### As a Claude Code skill
+### Como skill de Claude Code
 
-Ask Claude to scaffold a project structure (e.g. *"armá la estructura de carpetas
-para un backend FastAPI con clean architecture"*). The skill runs the interview,
-shows the tree, lets you edit it, and creates the directories.
+Pídele a Claude que arme la estructura de un proyecto (por ejemplo: *"armá la
+estructura de carpetas para un backend FastAPI con clean architecture"*). La skill
+conduce la entrevista, muestra el árbol, permite editarlo y crea los directorios.
 
-### As a CLI
+### Como CLI
 
-Requires Python 3.11+ and PyYAML (`pip install -r requirements.txt`).
+Requiere Python 3.11+ y PyYAML (`pip install -r requirements.txt`).
 
-Compose a tree and write the contract:
+Componer un árbol y escribir el contrato:
 
 ```bash
 python scripts/scaffold.py compose \
@@ -62,20 +64,20 @@ python scripts/scaffold.py compose \
   --out structure.yaml
 ```
 
-Pass `--example-module users` to materialize a concrete `users/` module instead of
-the `{module}` placeholder.
+Pasa `--example-module users` para materializar un módulo concreto `users/` en lugar
+del placeholder `{module}`.
 
-Edit `structure.yaml` if you want (a `null` node is a leaf dir that gets
-`.gitkeep`; `"{module}"` is a template — duplicate and rename it per real feature),
-then materialize:
+Edita el `structure.yaml` si lo necesitas (un nodo `null` es un directorio hoja que
+recibe `.gitkeep`; `"{module}"` es una plantilla: duplícala y renómbrala por cada
+feature real), y luego materializa:
 
 ```bash
 python scripts/scaffold.py materialize --from-yaml structure.yaml --into .
 ```
 
-`materialize` refuses to write into a non-empty target unless `--force` is given.
+`materialize` se niega a escribir en un destino no vacío salvo que pases `--force`.
 
-#### Example — `clean` + `fastapi`, feature-first
+#### Ejemplo — `clean` + `fastapi`, feature-first
 
 ```
 my-api/
@@ -90,55 +92,58 @@ my-api/
 └── tests/
 ```
 
-## Brownfield detection
+## Detección brownfield (proyecto existente)
 
-If the target directory already has a project scaffold (e.g. after `npm create vite`,
-`create-next-app`, or an existing FastAPI repo), run detection first:
+Si el directorio destino ya tiene un scaffold (por ejemplo después de `npm create vite`,
+`create-next-app`, o un repo FastAPI existente), ejecuta primero la detección:
 
 ```bash
 python scripts/scaffold.py detect --into <project-dir>
 ```
 
-This infers the framework (`next`, `react-vite`, `fastapi`, `nestjs`, …), the
-package manager (`pnpm`, `uv`, `npm`, …), and the existing `source_root` (`src`,
-`app`, …). The package manager is **informational only** — it does not change the
-folder tree (this skill is dirs-only).
+Infiere el framework (`next`, `react-vite`, `fastapi`, `nestjs`, …), el gestor de
+paquetes (`pnpm`, `uv`, `npm`, …) y el `source_root` existente (`src`, `app`, …). El
+gestor de paquetes es **solo informativo**: no cambia el árbol de carpetas (esta skill
+es solo-directorios).
 
-Use the report to pre-fill the interview and skip questions you can already answer.
-Then materialize the architecture on top of the existing project with `--merge`:
+Usa el reporte para pre-llenar la entrevista y omitir las preguntas que ya puedes
+responder. Luego materializa la arquitectura sobre el proyecto existente con
+`--merge`:
 
 ```bash
 python scripts/scaffold.py materialize --from-yaml structure.yaml --into <parent-dir> --merge
 ```
 
-`--merge` makes materialize additive — it only creates missing directories and never
-overwrites anything already there.
+`--merge` hace que materialize sea aditivo: solo crea los directorios que faltan y nunca
+sobrescribe nada de lo que ya está.
 
-## Repository layout
+## Estructura del repositorio
 
 ```
-SKILL.md                  # skill entry: interview flow + invocation
+SKILL.md                  # entrada de la skill: flujo de entrevista + invocación
 requirements.txt          # pyyaml, pytest
 scripts/
-  scaffold.py             # CLI (compose / materialize)
-  _compose.py             # three-overlay merge engine
-  _catalog.py             # fragment loaders + CatalogError
-  _materialize.py         # tree dict -> dirs + .gitkeep
+  scaffold.py             # CLI (compose / materialize / detect)
+  _compose.py             # motor de merge de tres capas
+  _catalog.py             # carga de fragmentos + CatalogError
+  _materialize.py         # árbol dict -> dirs + .gitkeep
+  _detect.py              # detección brownfield (framework / package manager / layout)
 references/
   topologies.yaml
-  architectures/{backend,frontend}/*.yaml   # define layer slots
-  stacks/{backend,frontend}/*.yaml          # inject dirs + nesting
+  architectures/{backend,frontend}/*.yaml   # definen los slots de capa
+  stacks/{backend,frontend}/*.yaml          # inyectan dirs + nesting
 ```
 
-## Extending the catalog
+## Extender el catálogo
 
-Adding a stack or architecture is **one new YAML fragment** — the engine composes
-any combination. For a stack not yet in the catalog, look up its idiomatic layout
-in the official docs, add `references/stacks/<side>/<name>.yaml` following the
-existing fragments, and you are done.
+Agregar un stack o una arquitectura es **un solo fragmento YAML nuevo**: el motor
+compone cualquier combinación. Para un stack que todavía no está en el catálogo, busca
+su layout idiomático en la documentación oficial, agrega
+`references/stacks/<side>/<name>.yaml` siguiendo los fragmentos existentes, y listo.
 
 ## Roadmap
 
-- **v1.1:** more fragments — `go`, `spring-boot` (backend); `vue`, `nuxt`,
-  `angular` (frontend); `monorepo-nx` (topology).
-- **v2:** deployment axis — Docker / Vercel file placement.
+- **v1.1:** más fragmentos — `go`, `spring-boot` (backend); `vue`, `nuxt`,
+  `angular` (frontend); `monorepo-nx` (topología).
+- **v2:** eje de despliegue — ubicación de archivos Docker / Vercel.
+```
