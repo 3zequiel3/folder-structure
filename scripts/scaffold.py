@@ -32,6 +32,8 @@ def _selections_from_args(args):
         selections["frontend"] = {"arch": args.frontend_arch, "stack": args.frontend_stack}
         if args.frontend_nesting:
             selections["frontend"]["nesting"] = args.frontend_nesting
+    if args.example_module:
+        selections["example_module"] = args.example_module
     return selections
 
 
@@ -85,6 +87,7 @@ def build_parser():
     c.add_argument("--frontend-arch")
     c.add_argument("--frontend-stack")
     c.add_argument("--frontend-nesting")
+    c.add_argument("--example-module")
     c.add_argument("--out")
     c.set_defaults(func=cmd_compose)
 

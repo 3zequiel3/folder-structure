@@ -62,6 +62,9 @@ python scripts/scaffold.py compose \
   --out structure.yaml
 ```
 
+Pass `--example-module users` to materialize a concrete `users/` module instead of
+the `{module}` placeholder.
+
 Edit `structure.yaml` if you want (a `null` node is a leaf dir that gets
 `.gitkeep`; `"{module}"` is a template — duplicate and rename it per real feature),
 then materialize:

@@ -29,6 +29,9 @@ Interview the user, compose a folder tree from the catalog, negotiate it over a
    fsd / atomic / container-presentational).
 5. **Nesting** (backend only): organize by feature (screaming) or by technical
    layer? Sets `--backend-nesting feature-first|layer-first`.
+6. **Example module (optional):** want a concrete example module instead of the
+   `{module}` placeholder? If so, name it (e.g. `users`) → sets `--example-module <name>`.
+   Otherwise leave the `{module}` template for the user to rename.
 
 ## Compose, show, negotiate
 
@@ -39,6 +42,7 @@ python scripts/scaffold.py compose \
   --root <project-name> --topology <topology> \
   --backend-arch <arch> --backend-stack <stack> [--backend-nesting <n>] \
   --frontend-arch <arch> --frontend-stack <stack> \
+  [--example-module <name>] \
   --out structure.yaml
 ```
 

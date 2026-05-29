@@ -25,7 +25,7 @@ def _slots_node(slots):
     return {name: _dirs_to_node(dirs) for name, dirs in slots.items()}
 
 
-def compose_side(arch, stack):
+def compose_side(arch, stack, module_name="{module}"):
     """Build the directory subtree for one side (backend or frontend)."""
     nesting = stack.get("nesting", "feature-first")
     root = stack.get("root", {}) or {}
@@ -38,10 +38,10 @@ def compose_side(arch, stack):
         base_content[extra] = None
 
     if nesting == "feature-first":
-        base_content[module_token] = {"{module}": sn}
+        base_content[module_token] = {module_name: sn}
     elif nesting == "layer-first":
         for slot_name, node in sn.items():
-            base_content[slot_name] = {"{module}": node}
+            base_content[slot_name] = {module_name: node}
     elif nesting == "flat":
         for slot_name, node in sn.items():
             base_content[slot_name] = node
@@ -102,7 +102,8 @@ def compose(selections):
         stack = load_stack(side, sel["stack"])
         if sel.get("nesting"):
             stack = {**stack, "nesting": sel["nesting"]}
-        subtree = compose_side(arch, stack)
+        subtree = compose_side(arch, stack,
+                               module_name=selections.get("example_module", "{module}"))
         tree = mount_at(tree, mounts.get(side, ""), subtree)
 
     return {"root": selections["root"], "tree": tree}
