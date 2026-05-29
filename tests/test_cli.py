@@ -2,6 +2,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
 import yaml
 
 SCAFFOLD = Path(__file__).resolve().parent.parent / "scripts" / "scaffold.py"
@@ -44,3 +45,10 @@ def test_materialize_subcommand_creates_dirs(tmp_path):
     assert rc.returncode == 0, rc.stderr
     assert (tmp_path / "demo" / "app" / "domain" / ".gitkeep").is_file()
     assert (tmp_path / "demo" / "tests" / ".gitkeep").is_file()
+
+
+def test_compose_rejects_half_a_pair():
+    args = scaffold.build_parser().parse_args(
+        ["compose", "--root", "x", "--topology", "single-app", "--backend-arch", "clean"])
+    with pytest.raises(SystemExit):
+        scaffold.cmd_compose(args)

@@ -35,7 +35,15 @@ def _selections_from_args(args):
     return selections
 
 
+def _check_pair(arch, stack, side):
+    if bool(arch) != bool(stack):
+        raise SystemExit(
+            f"error: --{side}-arch and --{side}-stack must be provided together")
+
+
 def cmd_compose(args):
+    _check_pair(args.backend_arch, args.backend_stack, "backend")
+    _check_pair(args.frontend_arch, args.frontend_stack, "frontend")
     structure = compose(_selections_from_args(args))
     if args.out:
         Path(args.out).write_text(yaml.safe_dump(structure, sort_keys=False))
