@@ -3,3 +3,5 @@ docs/
 __pycache__/
 *.pyc
 .pytest_cache/
+.atl
+tests/
