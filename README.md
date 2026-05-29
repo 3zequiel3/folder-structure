@@ -1,149 +1,107 @@
 # folder-structure
 
-Una skill que te entrevista sobre tu stack y tu arquitectura y luego
-genera el **árbol de carpetas óptimo** para tu proyecto. La salida es **solo
-directorios** (con `.gitkeep` para que git los rastree); nunca código ni contenido de
-archivos de configuración.
+Skill para armar la **estructura de carpetas óptima** de un proyecto (backend y/o frontend) a partir de tu stack y arquitectura, sin tener que decidir el layout a mano.
 
-La "mejor estructura" no se improvisa en cada corrida: los layouts de arquitectura
-(clean / hexagonal / layered, feature-based / FSD / atomic / container-presentational)
-están **codificados en un catálogo**. La composición es determinista; el modelo solo
-conduce la entrevista y la negociación.
+---
 
-## Cómo funciona
+## ¿Qué hace?
 
-La composición son **tres capas ortogonales**, aplicadas en orden:
+Le pides al agente que arme la estructura, te hace unas pocas preguntas (tecnología, arquitectura) y **crea las carpetas solo** — con `.gitkeep` para que git las rastree. Genera **solo directorios**: nunca código ni archivos de configuración.
 
+La "mejor estructura" no se improvisa: los layouts de arquitectura están **codificados en un catálogo** (clean / hexagonal / layered en backend; feature-based / FSD / atomic / container-presentational en frontend). El agente conduce la entrevista; la composición del árbol es determinista.
+
+Tiene **dos modos** que se activan automáticamente:
+
+- **Greenfield** — proyecto nuevo o vacío: te entrevista de cero (stack → arquitectura) y crea el árbol completo.
+- **Brownfield** — proyecto que ya scaffoldeaste (`create-vite`, `create-next-app`, un repo FastAPI…): **detecta** framework, package manager y dónde está tu `src/`, pregunta solo lo que falta (típicamente la arquitectura) y **mete las capas encima sin pisar nada**.
+
+---
+
+## Instalación
+
+```bash
+npx skills add https://github.com/3zequiel3/folder-structure
 ```
-TOPOLOGÍA           →  ARQUITECTURA        →  STACK
-(envoltorio raíz)      (define los slots)     (inyecta dirs en los slots +
-                                               estrategia de nesting)
-```
 
-- **Topología** — la forma del repo: `single-app`, `monorepo-turborepo` o
-  `cross-lang` (`frontend/` + `backend/`).
-- **Arquitectura** — define los *slots de capa* con nombre (la autoridad sobre la
-  estructura). Backend: `clean`, `hexagonal`, `layered`. Frontend: `feature-based`,
-  `fsd`, `atomic`, `container-presentational`.
-- **Stack** — declara la estrategia de `nesting` (`feature-first` / `layer-first` /
-  `flat`) e *inyecta* los directorios del framework en los slots de la arquitectura.
-  Backend: `fastapi`, `nestjs`, `express`. Frontend: `next`, `react-vite`.
+La skill queda disponible para tu agente. Se carga automáticamente cuando le pidas armar, crear o scaffoldear la estructura de carpetas.
 
-El contrato de slots es puertos-y-adaptadores aplicado a la propia herramienta: los
-fragmentos de arquitectura **definen** los nombres de slot, y los fragmentos de stack
-los **referencian** para inyectar directorios.
-
-Dos fases: **compose** (produce un `structure.yaml` e imprime el árbol, sin escribir en
-disco) y **materialize** (crea los directorios a partir del YAML acordado). La
-negociación siempre ocurre sobre el `structure.yaml` editable.
-
-> `clean` ≠ `layered`. `clean` separa `domain / application / infrastructure /
-> presentation` (la entidad de dominio es distinta del modelo ORM, forzado por el
-> límite de carpeta). `layered` es el módulo plano por feature
-> (`router / service / uow / repository / model / schemas`). Screaming Architecture
-> no es una opción aparte: es `nesting: feature-first`.
+---
 
 ## Uso
 
-### Como skill de Claude Code
-
-Pídele a Claude que arme la estructura de un proyecto (por ejemplo: *"armá la
-estructura de carpetas para un backend FastAPI con clean architecture"*). La skill
-conduce la entrevista, muestra el árbol, permite editarlo y crea los directorios.
-
-### Como CLI
-
-Requiere Python 3.11+ y PyYAML (`pip install -r requirements.txt`).
-
-Componer un árbol y escribir el contrato:
-
-```bash
-python scripts/scaffold.py compose \
-  --root my-api --topology single-app \
-  --backend-arch clean --backend-stack fastapi --backend-nesting feature-first \
-  --out structure.yaml
-```
-
-Pasa `--example-module users` para materializar un módulo concreto `users/` en lugar
-del placeholder `{module}`.
-
-Edita el `structure.yaml` si lo necesitas (un nodo `null` es un directorio hoja que
-recibe `.gitkeep`; `"{module}"` es una plantilla: duplícala y renómbrala por cada
-feature real), y luego materializa:
-
-```bash
-python scripts/scaffold.py materialize --from-yaml structure.yaml --into .
-```
-
-`materialize` se niega a escribir en un destino no vacío salvo que pases `--force`.
-
-#### Ejemplo — `clean` + `fastapi`, feature-first
+### Proyecto nuevo (greenfield)
 
 ```
-my-api/
+Tu repo:
+proyecto/
+└── (vacío)
+
+Le decís al agente:
+"armá la estructura de carpetas para un backend FastAPI con clean architecture"
+```
+
+→ El agente pregunta lo necesario (topología, arquitectura, nesting, y si quieres un módulo de ejemplo), muestra el árbol propuesto, lo ajustas si hace falta, y **crea las carpetas**.
+
+### Proyecto existente (brownfield)
+
+```
+Tu repo:
+mi-app/
+├── package.json        # ya corriste npm create vite
+├── pnpm-lock.yaml
+└── src/
+
+Le decís al agente:
+"armá la estructura feature-based sobre este proyecto"
+```
+
+→ El agente **detecta** que es `react-vite` + `pnpm` + `src/`, pregunta solo la arquitectura/patrón, y **agrega las capas dentro de tu `src/` sin tocar lo que ya está** (es aditivo, nunca sobrescribe).
+
+---
+
+## Estructura generada (ejemplo)
+
+`backend` · `fastapi` · `clean` · feature-first:
+
+```
+mi-api/
 └── app/
     ├── config/
     └── modules/
-        └── {module}/
-            ├── domain/         (entities, value-objects)
-            ├── application/    (use-cases, ports, dtos)
-            ├── infrastructure/ (repositories, models, uow, db)
-            └── presentation/   (routers)
+        └── users/                 # módulo de ejemplo (o {module} como plantilla)
+            ├── domain/            # entities, value-objects
+            ├── application/       # use-cases, ports, dtos
+            ├── infrastructure/    # repositories, models, uow, db
+            └── presentation/      # routers
 └── tests/
 ```
 
-## Detección brownfield (proyecto existente)
+El árbol cambia según lo que elijas: `clean` separa las 4 capas (la entidad de dominio es distinta del modelo ORM); `layered` da el módulo plano (`router / service / uow / repository / model / schemas`). "Organizar por feature" (screaming) vs "por capa" se elige en la entrevista.
 
-Si el directorio destino ya tiene un scaffold (por ejemplo después de `npm create vite`,
-`create-next-app`, o un repo FastAPI existente), ejecuta primero la detección:
+---
+
+## Por qué esta estructura
+
+- **Determinista, no improvisada**: el mismo stack + arquitectura siempre da el mismo árbol, tomado de un catálogo, no de lo que rankee un blog ese día.
+- **El catálogo es la autoridad de arquitectura**: clean/hexagonal/layered con sus capas y reglas de dependencia bien definidas — `clean` ≠ `layered`, y no se confunden.
+- **Componible**: agregar un stack o una arquitectura es un solo fragmento YAML; el motor compone cualquier combinación (topología × arquitectura × stack).
+- **No invasiva**: solo crea carpetas, nunca pisa archivos. En proyectos existentes se suma a lo que ya hay.
+
+---
+
+## Uso manual (opcional)
+
+No hace falta — el agente corre todo esto por ti. Pero si quieres usarlo a mano (requiere Python 3.11+ y PyYAML):
 
 ```bash
-python scripts/scaffold.py detect --into <project-dir>
-```
+# detectar un proyecto existente
+python scripts/scaffold.py detect --into <dir>
 
-Infiere el framework (`next`, `react-vite`, `fastapi`, `nestjs`, …), el gestor de
-paquetes (`pnpm`, `uv`, `npm`, …) y el `source_root` existente (`src`, `app`, …). El
-gestor de paquetes es **solo informativo**: no cambia el árbol de carpetas (esta skill
-es solo-directorios).
+# componer el árbol (escribe structure.yaml, no toca el disco)
+python scripts/scaffold.py compose --root mi-api --topology single-app \
+  --backend-arch clean --backend-stack fastapi --example-module users \
+  --out structure.yaml
 
-Usa el reporte para pre-llenar la entrevista y omitir las preguntas que ya puedes
-responder. Luego materializa la arquitectura sobre el proyecto existente con
-`--merge`:
-
-```bash
-python scripts/scaffold.py materialize --from-yaml structure.yaml --into <parent-dir> --merge
-```
-
-`--merge` hace que materialize sea aditivo: solo crea los directorios que faltan y nunca
-sobrescribe nada de lo que ya está.
-
-## Estructura del repositorio
-
-```
-SKILL.md                  # entrada de la skill: flujo de entrevista + invocación
-requirements.txt          # pyyaml, pytest
-scripts/
-  scaffold.py             # CLI (compose / materialize / detect)
-  _compose.py             # motor de merge de tres capas
-  _catalog.py             # carga de fragmentos + CatalogError
-  _materialize.py         # árbol dict -> dirs + .gitkeep
-  _detect.py              # detección brownfield (framework / package manager / layout)
-references/
-  topologies.yaml
-  architectures/{backend,frontend}/*.yaml   # definen los slots de capa
-  stacks/{backend,frontend}/*.yaml          # inyectan dirs + nesting
-```
-
-## Extender el catálogo
-
-Agregar un stack o una arquitectura es **un solo fragmento YAML nuevo**: el motor
-compone cualquier combinación. Para un stack que todavía no está en el catálogo, busca
-su layout idiomático en la documentación oficial, agrega
-`references/stacks/<side>/<name>.yaml` siguiendo los fragmentos existentes, y listo.
-
-## Roadmap
-
-- **v1.1:** más fragmentos — `go`, `spring-boot` (backend); `vue`, `nuxt`,
-  `angular` (frontend); `monorepo-nx` (topología).
-- **v2:** eje de despliegue — ubicación de archivos Docker / Vercel.
+# materializar (crea las carpetas; --merge para sumar sobre un proyecto existente)
+python scripts/scaffold.py materialize --from-yaml structure.yaml --into .
 ```
