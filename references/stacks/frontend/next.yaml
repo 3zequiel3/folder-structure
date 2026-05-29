@@ -1,7 +1,6 @@
 nesting: flat
 root:
   base: src
-  base_extra: []
+  base_extra: [app]
   scaffold: [src, public]
-inject:
-  app: [api]
+inject: {}

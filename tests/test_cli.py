@@ -52,3 +52,25 @@ def test_compose_rejects_half_a_pair():
         ["compose", "--root", "x", "--topology", "single-app", "--backend-arch", "clean"])
     with pytest.raises(SystemExit):
         scaffold.cmd_compose(args)
+
+
+def test_materialize_rejects_malformed_yaml(tmp_path):
+    bad = tmp_path / "bad.yaml"
+    bad.write_text("root: [unclosed\n")
+    import subprocess, sys
+    rc = subprocess.run(
+        [sys.executable, str(SCAFFOLD), "materialize", "--from-yaml", str(bad)],
+        capture_output=True, text=True)
+    assert rc.returncode == 1
+    assert "invalid YAML" in rc.stderr
+
+
+def test_materialize_rejects_missing_keys(tmp_path):
+    incomplete = tmp_path / "x.yaml"
+    incomplete.write_text("hello: world\n")
+    import subprocess, sys
+    rc = subprocess.run(
+        [sys.executable, str(SCAFFOLD), "materialize", "--from-yaml", str(incomplete)],
+        capture_output=True, text=True)
+    assert rc.returncode == 1
+    assert "must contain 'root' and 'tree'" in rc.stderr

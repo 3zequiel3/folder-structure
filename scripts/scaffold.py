@@ -54,7 +54,15 @@ def cmd_compose(args):
 
 
 def cmd_materialize(args):
-    data = yaml.safe_load(Path(args.from_yaml).read_text())
+    try:
+        data = yaml.safe_load(Path(args.from_yaml).read_text())
+    except yaml.YAMLError as exc:
+        print(f"error: invalid YAML in {args.from_yaml}: {exc}", file=sys.stderr)
+        return 1
+    if not isinstance(data, dict) or "root" not in data or "tree" not in data:
+        print(f"error: {args.from_yaml} must contain 'root' and 'tree' keys",
+              file=sys.stderr)
+        return 1
     target = Path(args.into) / data["root"]
     if target.exists() and any(target.iterdir()) and not args.force:
         print(f"error: target {target} is not empty (use --force)", file=sys.stderr)

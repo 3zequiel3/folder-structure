@@ -1,0 +1,10 @@
+root: my-web
+tree:
+  src:
+    app:
+    features:
+    components:
+      ui:
+    hooks:
+    services:
+  public:

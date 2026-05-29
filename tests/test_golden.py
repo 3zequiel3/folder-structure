@@ -24,6 +24,10 @@ CASES = {
         "backend": {"arch": "hexagonal", "stack": "nestjs"},
         "frontend": {"arch": "feature-based", "stack": "react-vite"},
     },
+    "next-feature-based.yaml": {
+        "root": "my-web", "topology": "single-app",
+        "frontend": {"arch": "feature-based", "stack": "next"},
+    },
 }
 
 
