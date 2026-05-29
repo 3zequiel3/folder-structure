@@ -1,0 +1,14 @@
+slots:
+  app:
+    dirs: [providers]
+  pages:
+    dirs: []
+  widgets:
+    dirs: []
+  features:
+    dirs: []
+  entities:
+    dirs: []
+  shared:
+    dirs: [api, config, lib, ui]
+dependency_rule: "app -> pages -> widgets -> features -> entities -> shared"

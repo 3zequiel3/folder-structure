@@ -1,0 +1,10 @@
+slots:
+  domain:
+    dirs: [entities, value-objects]
+  application:
+    dirs: [use-cases, ports, dtos]
+  infrastructure:
+    dirs: []
+  presentation:
+    dirs: []
+dependency_rule: "presentation -> application -> domain; infrastructure -> application"

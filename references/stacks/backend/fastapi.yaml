@@ -1,0 +1,9 @@
+nesting: feature-first
+root:
+  base: app
+  base_extra: [config]
+  scaffold: [app, tests]
+module_token: modules
+inject:
+  infrastructure: [repositories, models, uow, db]
+  presentation: [routers]

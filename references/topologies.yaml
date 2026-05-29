@@ -1,0 +1,14 @@
+single-app:
+  scaffold: {}
+  mounts: { backend: "", frontend: "" }
+  max_sides: 1
+monorepo-turborepo:
+  scaffold:
+    packages:
+      ui:
+      types:
+      config:
+  mounts: { backend: "apps/api", frontend: "apps/web" }
+cross-lang:
+  scaffold: {}
+  mounts: { backend: "backend", frontend: "frontend" }

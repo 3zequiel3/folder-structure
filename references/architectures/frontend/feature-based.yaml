@@ -1,0 +1,9 @@
+slots:
+  features:
+    dirs: []
+  components:
+    dirs: [ui]
+  hooks:
+    dirs: []
+  services:
+    dirs: []

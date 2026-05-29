@@ -1,0 +1,9 @@
+nesting: layer-first
+root:
+  base: src
+  base_extra: [config, middlewares]
+  scaffold: [src, tests]
+module_token: modules
+inject:
+  infrastructure: [database]
+  presentation: [routes, controllers]

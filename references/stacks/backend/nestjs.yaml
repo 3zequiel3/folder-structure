@@ -1,0 +1,9 @@
+nesting: feature-first
+root:
+  base: src
+  base_extra: []
+  scaffold: [src, test]
+module_token: modules
+inject:
+  application: [dtos, mappers]
+  infrastructure: [persistence, http, events]

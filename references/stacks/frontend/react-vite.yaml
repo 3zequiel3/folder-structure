@@ -1,0 +1,6 @@
+nesting: flat
+root:
+  base: src
+  base_extra: []
+  scaffold: [src, public]
+inject: {}

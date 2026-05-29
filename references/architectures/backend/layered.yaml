@@ -1,0 +1,14 @@
+slots:
+  router:
+    dirs: []
+  service:
+    dirs: []
+  uow:
+    dirs: []
+  repository:
+    dirs: []
+  model:
+    dirs: []
+  schemas:
+    dirs: []
+dependency_rule: "router -> service -> repository -> model"

@@ -1,0 +1,9 @@
+slots:
+  components:
+    dirs: []
+  containers:
+    dirs: []
+  hooks:
+    dirs: []
+  services:
+    dirs: []

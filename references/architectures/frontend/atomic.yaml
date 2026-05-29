@@ -1,0 +1,9 @@
+slots:
+  components:
+    dirs: [atoms, molecules, organisms, templates, pages]
+  hooks:
+    dirs: []
+  services:
+    dirs: []
+  store:
+    dirs: []
