@@ -1,6 +1,6 @@
 # folder-structure
 
-Una skill de Claude Code que te entrevista sobre tu stack y tu arquitectura y luego
+Una skill que te entrevista sobre tu stack y tu arquitectura y luego
 genera el **árbol de carpetas óptimo** para tu proyecto. La salida es **solo
 directorios** (con `.gitkeep` para que git los rastree); nunca código ni contenido de
 archivos de configuración.
